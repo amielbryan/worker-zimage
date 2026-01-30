@@ -1,15 +1,16 @@
-FROM runpod/pytorch:2.4.0
+# Use a high-stability, verified RunPod base image
+FROM runpod/pytorch:2.2.1-py3.10-cuda12.1.1-devel-ubuntu22.04
 
-# Install Python dependencies
-RUN pip install --no-cache-dir \
-    runpod \
-    diffusers \
-    transformers \
-    accelerate \
-    scipy
+# Define working directory
+WORKDIR /
 
-# Add the handler file
-ADD handler.py .
+# Install core dependencies in one clean layer
+RUN pip install --upgrade pip && \
+    pip install runpod diffusers transformers accelerate
 
-# Start the handler
-CMD [ "python", "-u", "handler.py" ]
+# Copy your handler script into the container
+# Ensure your file is named exactly handler.py in your GitHub root
+COPY handler.py .
+
+# Start the worker
+CMD [ "python", "-u", "/handler.py" ]
